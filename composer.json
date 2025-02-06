@@ -1,0 +1,92 @@
+{
+    "name": "laravel/laravel",
+    "type": "project",
+    "description": "The skeleton application for the Laravel framework.",
+    "keywords": ["laravel", "framework"],
+    "license": "MIT",
+    "require": {
+        "php": "^8.1",
+        "arispati/emoji-remover": "^0.1.2",
+        "barcode-bakery/barcode-1d": "^7.0",
+        "bigfish/pdf417": "^0.1.2",
+        "box/spout": "^3.3",
+        "composer/package-versions-deprecated": "1.11.99.4",
+        "darkaonline/l5-swagger": "^8.6",
+        "guzzlehttp/guzzle": "^7.2",
+        "laravel/framework": "^10.10",
+        "laravel/sanctum": "^3.3",
+        "laravel/tinker": "^2.8",
+        "league/flysystem-aws-s3-v3": "^3.24",
+        "leongrdic/pdf417": "^1.0",
+        "milon/barcode": "^10.0",
+        "nelmio/api-doc-bundle": "*",
+        "php-amqplib/php-amqplib": "^3.6",
+        "phpdocumentor/reflection-docblock": "^5.3",
+        "phpoffice/phpspreadsheet": "^1.29",
+        "picqer/php-barcode-generator": "^2.3",
+        "ramsey/uuid-doctrine": "^1.7",
+        "simplesoftwareio/simple-qrcode": "^4.2",
+        "twig/twig": "^3.3",
+        "vladimir-yuldashev/laravel-queue-rabbitmq": "^14.0",
+        "webmozart/assert": "^1.10",
+        "yoomoney/yookassa-sdk-php": "^3.2"
+    },
+    "require-dev": {
+        "fakerphp/faker": "^1.9.1",
+        "laravel/pint": "^1.0",
+        "laravel/sail": "^1.18",
+        "mockery/mockery": "^1.4.4",
+        "nunomaduro/collision": "^7.0",
+        "phpunit/phpunit": "^10.1",
+        "spatie/laravel-ignition": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/",
+            "Tests\\": "tests/",
+            "Database\\Factories\\": "database/factories/",
+            "Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "post-autoload-dump": [
+            "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+            "@php artisan package:discover --ansi"
+        ],
+        "post-update-cmd": [
+            "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
+        ],
+        "post-root-package-install": [
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+        ],
+        "post-create-project-cmd": [
+            "@php artisan key:generate --ansi"
+        ]
+    },
+    "extra": {
+        "laravel": {
+            "dont-discover": []
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": {
+            "*": "dist"
+        },
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "php-http/discovery": true,
+            "composer/package-versions-deprecated": true,
+            "symfony/flex": true,
+            "symfony/runtime": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

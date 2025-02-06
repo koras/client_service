@@ -1,0 +1,1017 @@
+openapi: 3.0.1
+info:
+  title: WidgetClientBackService
+  description: API WidgetClientBackService
+  version: 1.0.2
+servers:
+  - url: http://localhost:8087
+    description: Local Development Server
+  - url: https://samara-dev.widget.mygiftcard.ru
+    description: Samara Development Server
+paths:
+  /widget/{id}/preview:
+    get:
+      tags:
+        - Сертификат
+      summary: Получить PDF-файл для предпросмотра сертификата по {id} widget
+      parameters:
+        - name: id
+          in: path
+          description: id виджета
+          required: true
+          schema:
+            type: string
+            example: "5690f6ca-fc9a-4e4e-9692-67175712e7e6"
+        - name: template_id
+          in: query
+          description: "Порядковый номер обложки (из списка обложек виджета)"
+          required: true
+          schema:
+            type: number
+            example: 0
+        - name: product_id
+          in: query
+          description: "id товара для отображения на сертификате"
+          required: true
+          schema:
+            type: number
+            example: 1710398608706343
+        - name: download
+          in: query
+          description: Скачать сертификат или нет
+          required: false
+          schema:
+            type: integer
+            example: 1
+      responses:
+        200:
+          description: Сгенерированный файл PDF
+          headers:
+            cache-control:
+              description: Cache control header
+              schema:
+                type: string
+              example: "no-cache,private"
+            content-type:
+              description: Content type header
+              schema:
+                type: string
+              example: "application/pdf"
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        500:
+          description: Ошибка
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorGenerationService500"
+
+  /certificate/pdf/{id}:
+    get:
+      tags:
+        - Сертификат
+      summary: Получить PDF-файл для сертификата по {id} сертификата
+      parameters:
+        - name: id
+          in: path
+          description: "id сертификата"
+          required: true
+          schema:
+            type: string
+            example: "ab13fe71-464b-4582-b26a-f6d15cdb6e38"
+        - name: download
+          in: query
+          description: Скачать сертификат или нет
+          required: false
+          schema:
+            type: integer
+            example: 1
+      responses:
+        200:
+          description: Сгенерированный файл PDF
+          headers:
+            cache-control:
+              description: Cache control header
+              schema:
+                type: string
+              example: "no-cache,private"
+            content-type:
+              description: Content type header
+              schema:
+                type: string
+              example: "application/pdf"
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        500:
+          description: Ошибка
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorGenerationService500"
+
+  /{widget_id}/view/{id}:
+    get:
+      tags:
+        - Сертификат
+      summary: Получить данные для показа страницы с Сертификатом
+      parameters:
+        - name: widget_id
+          in: path
+          description: id Виджета
+          required: true
+          schema:
+            type: string
+            example: "5690f6ca-fc9a-4e4e-9692-67175712e7e6"
+        - name: id
+          in: path
+          description: id сертификата
+          required: true
+          schema:
+            type: string
+            example: "ab13fe71-464b-4582-b26a-f6d15cdb6e38"
+      responses:
+        200:
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShowCertificateResponse200"
+        500:
+          description: Ошибка
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorGenerationService500"
+
+  /widget/{id}/upload-cover:
+    post:
+      tags:
+        - Заказ
+      summary: Загрузить кастомную обложку для сертификата
+      parameters:
+        - name: id
+          in: path
+          description: id виджета
+          required: true
+          schema:
+            type: string
+            example: "5690f6ca-fc9a-4e4e-9692-67175712e7e6"
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UploadCoverFileObject'
+        required: true
+      responses:
+        200:
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadCoverFileResponse200'
+        422:
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInvalidFields422'
+
+  /widget/{id}/order:
+    post:
+      tags:
+        - Заказ
+      summary: Оформить заказ
+      parameters:
+        - name: id
+          in: path
+          description: id виджета
+          required: true
+          schema:
+            type: string
+            example: "5690f6ca-fc9a-4e4e-9692-67175712e7e6"
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/OrderRequestObject'
+        required: true
+      responses:
+        200:
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponse200'
+        422:
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInvalidFields422'
+
+  /order/{id}/reorder:
+    post:
+      tags:
+        - Заказ
+      summary: Переотправить заказ в ПЦ
+      parameters:
+        - name: id
+          in: path
+          description: id заказа
+          required: true
+          schema:
+            type: string
+            example: "bddc43e4-4707-43c7-a1b8-c808adb76357"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReorderRequestObj'
+        required: true
+      responses:
+        200:
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptySuccessResponse200'
+        422:
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInvalidFields422'
+
+  /widget/order/xls:
+    post:
+      tags:
+        - Заказ
+      summary: Загрузить список получателей для Рассылки (можно указать до 50 получателей)
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ParseXlsRequestObject'
+        required: true
+      responses:
+        200:
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParseXlsResponse200'
+        422:
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInvalidFields422'
+
+  /widget:
+    get:
+      tags:
+        - Виджет
+      summary: Получить информацию по виджету (настройки, номиналы и т.д.)
+      responses:
+        200:
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WidgetInfoResponse200'
+        422:
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInvalidFields422'
+
+  /widget/{term}:
+    get:
+      tags:
+        - Виджет
+      summary: Получить информацию по виджету (настройки, номиналы и т.д.)
+      parameters:
+        - name: term
+          in: path
+          description: id виджета или домен виджета
+          required: true
+          schema:
+            type: string
+            example: "5690f6ca-fc9a-4e4e-9692-67175712e7e6"
+      responses:
+        200:
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WidgetInfoResponse200'
+        422:
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInvalidFields422'
+
+  /{id}/support:
+    post:
+      tags:
+        - Поддержка
+      summary: Отправить сообщение в поддержку виджета
+      parameters:
+        - name: id
+          in: path
+          description: id виджета
+          required: true
+          schema:
+            type: string
+            example: "5690f6ca-fc9a-4e4e-9692-67175712e7e6"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendSupportRequest'
+        required: true
+      responses:
+        200:
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptySuccessResponse200'
+        422:
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInvalidFields422'
+
+components:
+  schemas:
+
+    ShowCertificateResponse200:
+      type: object
+      properties:
+        id:
+          type: string
+          description: "id сертификата"
+          example: "ab13fe71-464b-4582-b26a-f6d15cdb6e38"
+        serial:
+          type: string
+          description: "серийный номер сертификата"
+          example: "3693888348197184"
+        expire_at:
+          type: string
+          format: date-time
+          description: "Дата окончания действия сертификата"
+          example: "2025-12-31T23:59:00.000000Z"
+        amount:
+          type: number
+          description: "Стоимость сертификата"
+          example: 1000
+        pin:
+          type: number
+          description: "pin-код для активации сертификата"
+          example: "3358"
+        cover:
+          type: string
+          format: uri
+          description: "ссылка на файл обложку для сертификата"
+          example: "https://S3-bucket-url/user_files/custom-hash-dir-name/cover/file-name.jpg"
+        sender_name:
+          type: string
+          description: "Имя отправителя"
+          example: "Алексей"
+        recipient_name:
+          type: string
+          description: "Имя получателя"
+          example: "Михаил"
+        recipient_type:
+          type: string
+          description: "Тип заказа (себе, в подарок)"
+          enum:
+            - "me"
+            - "other"
+          example: "me"
+        message:
+          type: string
+          description: "Сообщение для получателя"
+          example: "С праздником!"
+        faq:
+          type: array
+          description: "Частые вопросы и ответы"
+          items:
+            type: object
+            properties:
+              question:
+                type: string
+                example: "Question One ?"
+              answer:
+                type: string
+                example: "Answer One"
+          example:
+            - question: "Question One ?"
+              answer: "Answer One"
+            - question: "Question Two?"
+              answer: "Answer Two"
+            - question: "Question Three?"
+              answer: "Answer Three"
+        favicon:
+          type: string
+          description: "ссылка на изображение favicon"
+          format: uri
+          example: "https://S3-bucket-url/favicon/file-name.png"
+        support_email:
+          type: string
+          description: "Email поддержки"
+          format: email
+          example: "info@mygiftcard.ru"
+        support_msisdn:
+          type: string
+          description: "Телефон поддержки"
+          example: "+7 (495) 742 77 47"
+        template:
+          type: string
+          description: "Шаблон для отображения сертификата"
+          example: "basePinBarcode"
+        qr:
+          type: string
+          description: "изображение QR кода"
+          example: "data:image/png;base64,iVBOR...."
+        barcode:
+          type: string
+          description: "изображение Штрих-кода"
+          example: "data:image/png;base64,iVBOR...."
+
+    UploadCoverFileObject:
+      type: object
+      properties:
+        file:
+          type: string
+          format: binary
+
+    UploadCoverFileResponse200:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - error
+            - ok
+          example: ok
+        message:
+          type: string
+          example: null
+        data:
+          type: object
+          properties:
+            fileName:
+              type: string
+              description: "Имя файла"
+              example: "1710939989.png"
+            fileUrl:
+              type: string
+              description: "ссылка на загруженный файл"
+              format: uri
+              example: "https://S3-bucket-url/user_files/custom-hash-dir-name/cover/user/file-name.jpg"
+
+    ParseXlsRequestObject:
+      type: object
+      properties:
+        file:
+          type: string
+          format: binary
+        recipientType:
+          type: string
+          enum:
+            - email
+            - phone
+          example: phone
+
+    ParseXlsResponse200:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - error
+            - ok
+          example: ok
+        message:
+          type: string
+          example: null
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ParseXlsResponseObject'
+
+    OrderRequestObject:
+      type: array
+      items:
+        properties:
+          certificate:
+            type: object
+            properties:
+              template_id:
+                type: string
+                description: "порядковый номер обложки"
+                example: "0"
+              template_src:
+                type: string
+                description: "название файла обложки"
+                example: "9eefbd263f53941a0d4d3a83131f367d.png"
+              message:
+                type: string
+                description: "Текст поздравления"
+                example: "happy birth"
+              basket_key:
+                type: string
+                description: ""
+                example: "d171476a-f690-44a5-9a79-234566f488eb"
+              product:
+                type: object
+                properties:
+                  quantity:
+                    type: integer
+                    description: "Количество в заказе"
+                    example: 1
+                  product_id:
+                    type: string
+                    description: "id товара для заказа"
+                    example: "1710398608133327"
+                  amount:
+                    type: string
+                    description: "Стоимость товара"
+                    example: "1000"
+              delivery_type:
+                type: array
+                description: "Тип доставки сертификата получателю"
+                items:
+                  type: string
+                  enum:
+                    - "sms"
+          recipient:
+            type: object
+            description: "Данные получателя"
+            properties:
+              type:
+                type: string
+                description: "Тип получателя"
+                enum:
+                  - me
+                  - other
+                example: "other"
+              name:
+                type: string
+                description: "Имя получателя"
+                example: "Михаил"
+              msisdn:
+                type: string
+                description: "Номер телефона получателя для отправки сертификата (может отсутствовать)"
+                example: "+7 (900) 111-22-33"
+              email:
+                type: string
+                description: "Email получателя для отправки сертификата (может отсутствовать)"
+                example: "test@email.com"
+          time_to_send:
+            type: string
+            description: "Время отправки сертификата (заполнено, если указана отложенная доставка)"
+            example: ""
+          utm:
+            type: string
+            description: "Часовой пояс"
+            example: "null"
+          sender:
+            type: object
+            description: "Данные отправителя"
+            properties:
+              name:
+                type: string
+                description: "Имя отправителя"
+                example: "Игорь"
+              email:
+                type: string
+                description: "Email отправителя"
+                example: "igor@mail.ru"
+
+    ReorderRequestObj:
+      type: object
+      properties:
+        hash:
+          type: string
+          description: "Хэш для проверки прав на доступ к API"
+          example: "f85be6a2c98a20d1bcce0e10f9f09f3"
+
+    OrderResponse200:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - error
+            - ok
+          example: ok
+        message:
+          type: string
+          example: "success"
+        data:
+          example: null
+        confirmation_token:
+          type: string
+          description: "Токен для совершения оплаты"
+          example: "ct-2d8b6479-000f-5000-9000-141f6ab1ff53"
+
+
+    ParseXlsResponseObject:
+      type: object
+      properties:
+        index:
+          type: integer
+          description: "Порядковый номер в таблице"
+          example: 0
+        name:
+          type: string
+          description: "Значение ячейки Имя (из файла xls)"
+          example: "Виктор"
+        recipient:
+          type: string
+          description: "Значение ячейки Получатель (из файла xls)"
+          example: "79001112233"
+        message:
+          type: string
+          description: "Значение ячейки Поздравление (из файла xls)"
+          example: "С праздником!"
+
+    WidgetInfoResponse200:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - error
+            - ok
+          example: ok
+        message:
+          type: string
+          example: null
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/WidgetInfoObject'
+
+    WidgetInfoObject:
+      type: object
+      properties:
+        main:
+          $ref: '#/components/schemas/WidgetInfoMainObject'
+        style:
+          $ref: '#/components/schemas/WidgetInfoStyleObject'
+
+
+    WidgetInfoMainObject:
+      type: object
+      properties:
+        version:
+          type: number
+          description: "Версия"
+          example: 1
+        uuid:
+          type: string
+          description: "id Виджета"
+          example: "5690f6ca-fc9a-4e4e-9692-67175712e7e6"
+        name:
+          type: string
+          description: "Название Виджета"
+          example: "MGC"
+        domain:
+          type: string
+          description: "Домен Виджета"
+          example: "demo"
+        meta_title:
+          type: string
+          description: "SEO данные"
+          example: "Gift Certificates MGC"
+        support_tel_number:
+          type: string
+          description: "Телефон поддержки"
+          example: "+7 (495) 742 77 47"
+        support_email:
+          type: string
+          description: "Email поддержки"
+          example: "info@mygiftcard.ru"
+        delivery_variants:
+          type: array
+          items:
+            type: string
+          description: "Варианты доставки сертификата получателю"
+          example:
+            - "Email"
+            - "SMS"
+            - "Charity"
+        send_to_friend:
+          type: integer
+          description: "Доступность опции Отправить другу"
+          example: 1
+        offer_text:
+          type: string
+          description: "Текст соглашения с офертой"
+          example: "Текст соглашения с офертой"
+        faq:
+          type: array
+          description: "Частые вопросы и ответы"
+          items:
+            properties:
+              question:
+                type: string
+                description: "Текст вопроса"
+                example: "Question One ?"
+              answer:
+                type: string
+                description: "Текст ответа"
+                example: "Answer One"
+        rules_text:
+          type: string
+          description: "Текст условий использования"
+          example: "Текст условий использования"
+        hiw_create_title:
+          type: string
+          description: "Тексты Как это работает"
+          example: "Создание"
+        hiw_create_text:
+          type: string
+          description: "Тексты Как это работает"
+          example: "Выберите дизайн, номинал и напишите поздравление"
+        hiw_receive_title:
+          type: string
+          description: "Тексты Как это работает"
+          example: "Получение"
+        hiw_receive_text:
+          type: string
+          description: "Тексты Как это работает"
+          example: "Подарок будет отправлен сразу в SMS или Email"
+        hiw_glad_title:
+          type: string
+          description: "Тексты Как это работает"
+          example: "Радость"
+        hiw_glad_text:
+          type: string
+          description: "Тексты Как это работает"
+          example: "Счастливый получатель использует сертификат для оплаты покупок"
+        template:
+          type: string
+          description: "Название шаблона для отображения"
+          example: "basePin"
+        id_metric_yandex:
+          type: string
+          description: "ID Яндекс метрики"
+          example: "1115544484"
+        id_gtm:
+          type: string
+          description: "ID Google Tag Manager"
+          example: "12151546221"
+        custom_design:
+          type: integer
+          description: "Возможность загрузки кастомной обложки"
+          example: 1
+        usage_rules:
+          type: array
+          description: "Набор правил использования"
+          items:
+            properties:
+              icon:
+                type: string
+                description: ""
+                example: "<svg width=\"50\" height=\"50\" viewBox=\"0 0 50 50\" fil..."
+              text:
+                type: string
+                description: ""
+                example: "some description 1"
+        icons_color:
+          type: string
+          description: "цвет для иконок"
+          example: "#33cec0"
+        active_nominal:
+          type: string
+          description: "id товара, активного при показе страницы"
+          example: null
+        can_wholesale:
+          type: integer
+          description: "Можно делать заказ - рассылку (мелкий опт)"
+          example: 1
+        wholesale_example_phone:
+          type: string
+          description: "Ссылка на файл-шаблон для загрузки получателей рассылки для отправки на номера телефонов"
+          example: "https://S3-bucket-url/templates/examples/wholesale-example-phone.xls"
+        wholesale_example_email:
+          type: string
+          description: "Ссылка на файл-шаблон для загрузки получателей рассылки для отправки на email"
+          example: "https://S3-bucket-url/templates/examples/wholesale-example-email.xls"
+        corporate_purchase:
+          type: integer
+          description: "Отображать кнопку - Корпоративный заказ"
+          example: 1
+        script_from_admin:
+          type: string
+          description: "Кастомный скрипт интеграции с Битрикс"
+          example: null
+        ai_image_enable:
+          type: boolean
+          description: "Разрешить использовать ИИ для генерации изображения"
+          example: true
+        ai_text_enable:
+          type: boolean
+          description: "Разрешить использовать ИИ для генерации текста"
+          example: true
+
+    WidgetInfoStyleObject:
+      type: object
+      properties:
+        primary_color:
+          type: string
+          description: "Основной цвет"
+          example: "#888acf"
+        primary_background_color:
+          type: string
+          description: "Основной цвет фона"
+          example: "#ffffff"
+        icons_color:
+          type: string
+          description: "Цвет иконок"
+          example: "#33cec0"
+        circles_color:
+          type: string
+          description: "Цвет"
+          example: "#33cec0"
+        stars_color:
+          type: string
+          description: "Цвет"
+          example: "#33cec0"
+        logotype_image:
+          type: string
+          format: uri
+          description: "ссылка на файл логотипа"
+          example: "https://S3-bucket-url/user_files/custom-hash-dir-name/logo/file-name.jpg"
+        logotype_link:
+          type: string
+          format: uri
+          description: "url для ссылки при нажатии на логотип"
+          example: "https://site-url.ru"
+        favicon_image:
+          type: string
+          format: uri
+          description: "ссылка на файл favicon"
+          example: "https://S3-bucket-url/user_files/custom-hash-dir-name/file-name.jpg"
+        font:
+          type: string
+          description: "Название шрифта"
+          example: "Roboto"
+        external_css_file:
+          type: string
+          description: "Ссылка на дополнительный css файл"
+          example: null
+        products:
+          type: object
+          properties:
+            covers:
+              type: array
+              items:
+                properties:
+                  id:
+                    type: string
+                    description: "Порядковый номер"
+                    example: "0"
+                  src:
+                    type: string
+                    description: "Ссылка на файл с обложкой"
+                    example: "https://S3-bucket-url/user_files/custom-hash-dir-name/cover/file-name.jpg"
+        amounts:
+          type: array
+          items:
+            properties:
+              id:
+                type: integer
+                description: "id товара"
+                example: 1710398608133327
+              amount:
+                type: integer
+                description: "Стоимость товара"
+                example: 5000
+              nominal:
+                type: integer
+                description: "Номинал сертификата"
+                example: 5000
+              currency:
+                type: string
+                description: "Ед. измерения сертификата"
+                example: "руб."
+              saleImage:
+                type: string
+                description: "Ссылка на иконку для отображения скидки"
+                example: "https://S3-bucket-url/user_files/custom-hash-dir-name/sale-image/file-name.jpg"
+              saleColor:
+                type: string
+                description: "Цвет фона для иконки отображения скидки"
+                example: "#fb3ca2"
+        limits:
+          type: array
+          items:
+            properties:
+              min:
+                type: integer
+                example: 100
+              max:
+                type: integer
+                example: 1000
+        backgroundImage:
+          type: string
+          description: "Ссылка на кастомное изображение фона"
+          example: "https://S3-bucket-url/user_files/custom-hash-dir-name/background/file-name.jpg"
+
+    SendSupportRequest:
+      type: object
+      properties:
+        Name:
+          type: string
+          description: "Имя обратившегося в поддержку"
+          example: "Николай"
+        Email:
+          type: string
+          description: "Email для связи"
+          example: "email@mail.ru"
+        Message:
+          type: string
+          description: "Сообщение для поддержки"
+          example: "Сообщение для поддержки"
+        Phone:
+          type: string
+          description: "Номер телефона для связи"
+          example: "+79001112233"
+
+
+    ErrorGenerationService500:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - error
+            - ok
+          example: error
+        message:
+          type: string
+          example: "Ошибка сервиса генерации PDF"
+        data:
+          type: object
+          properties:
+            code:
+              type: string
+              example: "GENERATION_PDF_SERVICE_ERROR"
+            message:
+              type: string
+              example: "Ошибка сервиса генерации PDF"
+
+    ErrorInvalidFields422:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - error
+            - ok
+          example: error
+        message:
+          type: string
+          example: "Некорректные поля в запросе"
+        data:
+          type: object
+          properties:
+            code:
+              type: string
+              example: "INVALID_FIELDS"
+            message:
+              type: string
+              example: "Некорректные поля в запросе"
+
+    EmptySuccessResponse200:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - error
+            - ok
+          example: ok
+        message:
+          type: string
+          example: null
+        data:
+          type: string
+          example: null
+
+

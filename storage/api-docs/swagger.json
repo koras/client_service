@@ -1,0 +1,35 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "WidgetClientBackService API",
+        "version": "0.1"
+    },
+    "paths": {
+        "/health": {
+            "get": {
+                "tags": [
+                    "Probe"
+                ],
+                "summary": "Запрос проверки статуса доступности приложения",
+                "operationId": "793a43e5248b305a3dd2e12c418677fe",
+                "responses": {
+                    "200": {
+                        "description": "Статус запроса - успешно выполнен",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
